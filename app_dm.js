@@ -4,7 +4,7 @@ function initDashboard() {
   const selector = d3.select("#selDataset");
 
   // Populate the selector with "Test Subject ID"
-  d3.json("samples.json").then((data) => {
+  d3.json("/data/samples.json").then((data) => {
     console.log(data);
     const idVal = data.names;
     idVal.forEach((sample) => {
@@ -33,30 +33,61 @@ function optionChanged(selectedSample) {
 
 // Demographic Info Panel
 function metadata(PatientId) {
-  d3.json("samples.json").then((data) => {
+  d3.json("/data/samples.json").then((data) => {
     // Set data as constant variables
-    const metadata = data.metadata;
-    const selection_result = metadata.filter(
+    const metaData = data.metadata;
+    const selectResult = metaData.filter(
       (sampleobj) => sampleobj.id == PatientId);
-    const result = selection_result[0];
+    const result = selectResult[0];
     const PANEL = d3.select("#sample-metadata");
     // Clear existing data
     PANEL.html("");
     //Add key value pair to the panel
     Object.entries(result).forEach(([key, value]) => {
       PANEL.append("h6").text(`${key.toUpperCase()}; ${value}`);
+      //console.log(result);
     });
 
 
-    // Gauge (This is inside the Demographic function because it utilizes the metadata.)
-    // Code Here
+    //Gauge using above result 
+    const washFreq = parseFloat(result.wfreq);
+    //console.log(washFreq);
+    var gaugeData = [
+      {
+        domain: { x: [0, 5], y: [0, 1] },
+        value: washFreq,
+        text: washFreq,
+        type: "indicator",
+        mode: "gauge+number",
+        title: "Scrubs per Week",
+        number: { font: { size: 50 }},
+        
+        gauge: {
+          axis: { range: [null, 9], dtick: 1 },
+          bar: { color: "black" },
+          steps: [
+            { range: [0, 3], color: "red" },
+            { range: [3, 5], color: "orange" },
+            { range: [5, 7], color: "yellow" },
+            { range: [7, 9], color: "green" },
+            ],
+        },
+      },
+    ];
+
+    var layout = {
+      width: 400,
+      height: 400,
+      margin: { t: 50, r: 25, l: 25, b: 25 },
+      };
+    Plotly.newPlot("gauge", gaugeData, layout);
 
   });
 }
 
 // Initialize the page with a default plot.
 function dashboardCharts(PatientId) {
-  d3.json("samples.json").then((data) => {
+  d3.json("/data/samples.json").then((data) => {
     let plotData = data.samples;
     let subject = plotData.filter(
       (sampleobject) => sampleobject.id == PatientId
@@ -67,10 +98,10 @@ function dashboardCharts(PatientId) {
     let label = subject.otu_labels;
     let value = subject.sample_values;
 
+    // Hide unwanted buttons on the modebar
     const plotConfig = {
-        responsive: true, // Enable Responsive Chart to Window Size
-        // scrollZoom: true, // Mousewheel or two-finger scroll zooms the plot
-        displaylogo: false, // Hide the Plotly Logo on the Modebar
+        responsive: true, 
+        displaylogo: false, 
         modeBarButtonsToRemove: [
           "zoom2d",
           "pan2d",
@@ -84,7 +115,6 @@ function dashboardCharts(PatientId) {
           "hoverCompareCartesian",
           "toggleSpikelines",
         ],
-        // displayModeBar: false, // Never Display the Modebar
       };
 
 
@@ -107,7 +137,7 @@ function dashboardCharts(PatientId) {
       xaxis: { autorange: true },
       yaxis: { autorange: true },
       margin: { t: 70, l: 100 },
-      height: 380,
+      height: 400,
       hovermode: "closest",
       hoverlabel: { bgcolor: "lightgrey" },
     };
@@ -133,11 +163,13 @@ function dashboardCharts(PatientId) {
       margin: { t: 0 },
       xaxis: { title: "OTU ID" },
       hovermode: "x unified",
+      height: 400,
       width: window.width,
       };
 
 
     Plotly.newPlot("bubble", data, layout, plotConfig);
+
   });
 }
 
