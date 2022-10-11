@@ -4,7 +4,7 @@ function initDashboard() {
   const selector = d3.select("#selDataset");
 
   // Populate the selector with "Test Subject ID"
-  d3.json("/data/samples.json").then((data) => {
+  d3.json("data/samples.json").then((data) => {
     console.log(data);
     const idVal = data.names;
     idVal.forEach((sample) => {
@@ -33,7 +33,7 @@ function optionChanged(selectedSample) {
 
 // Demographic Info Panel
 function metadata(PatientId) {
-  d3.json("/data/samples.json").then((data) => {
+  d3.json("data/samples.json").then((data) => {
     // Set data as constant variables
     const metaData = data.metadata;
     const selectResult = metaData.filter(
@@ -87,7 +87,7 @@ function metadata(PatientId) {
 
 // Initialize the page with a default plot.
 function dashboardCharts(PatientId) {
-  d3.json("/data/samples.json").then((data) => {
+  d3.json("data/samples.json").then((data) => {
     let plotData = data.samples;
     let subject = plotData.filter(
       (sampleobject) => sampleobject.id == PatientId
